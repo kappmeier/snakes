@@ -1,37 +1,37 @@
-program JSSnake;
+program JSSnake2;
 
 uses Crt, Dos;
 
 type
     Nahrung = record
-        XPos : Word;
-        YPos : Word
+        XPos: Word;
+        YPos: Word
     end;
 
     HimmelsRichtung = (NORD, OST, SUED, WEST);
     Position = record
-        XPos : array[1..255] of Shortint;
-        YPos : array[1..255] of Shortint;
-        Laenge : Byte;
-        BlickRichtung : HimmelsRichtung
-      end; {type Position = record}
+        XPos: array[1..255] of Shortint;
+        YPos: array[1..255] of Shortint;
+        Laenge: Byte;
+        BlickRichtung: HimmelsRichtung
+    end; {type Position = record}
 
-    TKoordinaten = array[1..50, 1..25] of Boolean;
+    TKoordinaten = array[1..50, 2..50] of Boolean;
 
     Time = record
-        Hour, Minute, Second, Sec100 : Word
+        Hour, Minute, Second, Sec100: Word
     end; {type Time = record}
 
 var
-    ch : Char;
-    fFehlschlag : Boolean;
-    fKoordinaten : TKoordinaten;
-    i, j : Integer;
-    ilDelayTime : Longint;
-    isLevel, isLevelAnzeige, isSnakeLaenge, isOldLen : Shortint;
-    nahSnake : Nahrung;
-    posSnake : Position;
-    s, sNochMal : String;
+    ch, chNochMal: Char;
+    fFehlschlag: Boolean;
+    kKoordinaten: TKoordinaten;
+    i, j, iOrigMode: Integer;
+    lDelayTime: Longint;
+    shLevel, shLevelAnzeige, shSnakeLaenge, shOldLen: Shortint;
+    nahSnake: Nahrung;
+    posSnake: Position;
+    s: String;
 
 function GetDelay : Longint;
     var
@@ -53,25 +53,25 @@ function GetDelay : Longint;
         GetDelay := ilDelayTime;
     end;
 
-procedure Pause(ilTimes : Longint);
+procedure Pause(lTimes : Longint);
     var
-        iDelay : Longint;
+        lDelay : Longint;
         timeZW : Time;
     begin
-        iDelay := 0;
+        lDelay := 0;
         repeat
-            iDelay :=  iDelay + 1;
-            Delay(1);
+            lDelay :=  lDelay + 1;
+               Delay(1);
             GetTime(timeZW.Hour, timeZW.Minute, timeZW.Second, timeZW.Sec100)
-        until iDelay = ilTimes
+        until lDelay = lTimes
     end;
 
 procedure SetHindernis(var Koordinaten : TKoordinaten;
                        SnakePos : Position;
                        SnakeNahrung : Nahrung);
     begin
-        for i := 2 TO 49 do
-            for j := 2 TO 24 do
+        for i := 2 TO 39 do
+            for j := 3 TO 48 do
                 Koordinaten[i, j] := false;
         for i := 2 to SnakePos.Laenge do
             Koordinaten[SnakePos.XPos[i], SnakePos.YPos[i]] := true;
@@ -82,24 +82,22 @@ procedure SetNahrung(var Koordinaten : TKoordinaten;
                      SnakePos : Position;
                      var SnakeNahrung : Nahrung
                      );
-    var
-        fErlaubt : Boolean;
+    var fErlaubt : Boolean;
 
     function Control(xPos, yPos : Shortint;
                      SnakePos : Position) : Boolean;
-    var
-        fTemp : Boolean;
+    var fTemp : Boolean;
     begin
         fTemp := FALSE;
         i := 1;
         repeat
             if (SnakePos.XPos[i] = xPos) and (SnakePos.YPos[i] = yPos) then begin
                 fTemp := FALSE;
-                GoToXY(60,10);
+                GoToXY(1,1);
                 Write('X'); end
             else begin
                 fTemp := TRUE;
-                GoToXY(60, 10);
+                GoToXY(1, 1);
                 Write(' ');
             end;
             i := i + 1
@@ -108,11 +106,11 @@ procedure SetNahrung(var Koordinaten : TKoordinaten;
     end;
 
 begin
-    {Nahrung wird solange gesetzt, bis ein Punkt getroffen wird,
-     der nicht von der Schlange belegt wird.}
+    { Nahrung wird solange gesetzt, bis ein Punkt getroffen wird,
+      der nicht von der Schlange belegt wird. }
     repeat
-        SnakeNahrung.XPos := Random(49) + 2;
-        SnakeNahrung.YPos := Random(23) + 2;
+        SnakeNahrung.XPos := Random(37) + 2;
+        SnakeNahrung.YPos := Random(45) + 3;
         fErlaubt := Control(SnakeNahrung.XPos, SnakeNahrung.YPos, SnakePos);
     until fErlaubt = true;
     GoToXY(SnakeNahrung.XPos, SnakeNahrung.YPos);
@@ -144,69 +142,90 @@ procedure ShowSnake(var Koordinaten : TKoordinaten;
                     var SnakeNahrung : Nahrung;
                     var Fehlschlag : Boolean);
     begin
-        GoToXY(55, 5);
-        Write('Kopf   :    /    ');
-        GoToXY(55, 5);
-        Write('Kopf   : ', (SnakePos.XPos[1] - 1));
-        GoToXY(66,5);
-        Write(' / ', (SnakePos.YPos[1] - 1));
-        GoToXY(55, 4);
+        GoToXY(1, 1);
+        Write('     ');
+        GoToXY(1, 1);
+        Write(SnakePos.XPos[1] - 1);
+        GoToXY(3, 1);
+        Write('/');
+        GoToXY(4, 1);
+        Write(SnakePos.YPos[1] - 2);
+
+        GoToXY(30, 1);
         Write('LÑnge: ', SnakePos.Laenge);
-        GoToXY(55, 6);
-        Write('Nahrung:    /    ');
-        GoToXY(55, 6);
-        Write('Nahrung: ', (SnakeNahrung.XPos - 1));
-        GoToXY(66,6);
-        Write(' / ', (SnakeNahrung.YPos - 1));
-        {Zuerst den Schlangenkopf anzeigen}
-        GoToXY(SnakePos.XPos[1], SnakePos.YPos[1]);
-        case SnakePos.BlickRichtung of
-            NORD : write('^');
-            OST : Write('>');
-            SUED : Write('|');
-            WEST : Write('<')
-        end;
+
+        GoToXY(10, 1);
+        Write('Nahrung:   /    ');
+        GoToXY(19, 1);
+        Write(SnakeNahrung.XPos - 1);
+        GoToXY(22,1);
+        Write(SnakeNahrung.YPos - 2);
+
         for i := 2 TO SnakePos.Laenge do begin
             GoToXY(SnakePos.XPos[i], SnakePos.YPos[i]);
             Write('*')
         end;
-        Pause(ilDelayTime div 1000 * isLevel);
+        {Zuletzt den Schlangenkopf anzeigen}
+
+        GotoXY(SnakePos.XPos[1], SnakePos.YPos[1]);
+        {case SnakePos.BlickRichtung of
+            NORD : write('^');
+            OST : Write('>');
+            SUED : Write('|');
+            WEST : Write('<')
+        end;}
+        Write(#2);
+        GoToXY(SnakePos.XPos[1], SnakePos.YPos[2]);
+
+        Pause(lDelayTime div 1000 * shLevel);
         {Kontrolle, ob eine Taste gedrÅckt wurde.Die letze gedrÅckte Taste zÑhlt.}
         GoToXY(SnakePos.XPos[SnakePos.Laenge], SnakePos.YPos[SnakePos.Laenge]);
         Write(' ');
         while KeyPressed do ch := ReadKey;
         case Ord(ch) of
             72 : begin
-                for i := SnakePos.Laenge downto 2 do begin
-                    SnakePos.YPos[i] := SnakePos.YPos[i - 1];
-                    SnakePos.XPos[i] := SnakePos.XPos[i - 1]
-                end;
-                SnakePos.BlickRichtung := NORD;
-                SnakePos.YPos[1] := SnakePos.YPos[1] - 1
+                if SnakePos.BlickRichtung <> SUED then
+                begin
+                    for i := SnakePos.Laenge downto 2 do begin
+                        SnakePos.YPos[i] := SnakePos.YPos[i - 1];
+                        SnakePos.XPos[i] := SnakePos.XPos[i - 1]
+                    end;
+                    SnakePos.BlickRichtung := NORD;
+                    SnakePos.YPos[1] := SnakePos.YPos[1] - 1
+                end
             end;
             75 : begin
-                for i := SnakePos.Laenge downto 2 do begin
-                    SnakePos.YPos[i] := SnakePos.YPos[i - 1];
-                    SnakePos.XPos[i] := SnakePos.XPos[i - 1]
-                end;
-                SnakePos.BlickRichtung := WEST;
-                SnakePos.XPos[1] := SnakePos.XPos[1] - 1
+                if SnakePos.BlickRichtung <> OST then
+                begin
+                    for i := SnakePos.Laenge downto 2 do begin
+                        SnakePos.YPos[i] := SnakePos.YPos[i - 1];
+                        SnakePos.XPos[i] := SnakePos.XPos[i - 1]
+                    end;
+                    SnakePos.BlickRichtung := WEST;
+                    SnakePos.XPos[1] := SnakePos.XPos[1] - 1
+                end
             end;
             77 : begin
-                for i := SnakePos.Laenge downto 2 do begin
-                    SnakePos.YPos[i] := SnakePos.YPos[i - 1];
-                    SnakePos.XPos[i] := SnakePos.XPos[i - 1]
-                end;
-                SnakePos.BlickRichtung := OST;
-                SnakePos.XPos[1] := SnakePos.XPos[1] + 1
+                if SnakePos.BlickRichtung <> WEST then
+                begin
+                    for i := SnakePos.Laenge downto 2 do begin
+                        SnakePos.YPos[i] := SnakePos.YPos[i - 1];
+                        SnakePos.XPos[i] := SnakePos.XPos[i - 1]
+                    end;
+                    SnakePos.BlickRichtung := OST;
+                    SnakePos.XPos[1] := SnakePos.XPos[1] + 1
+                end
             end;
             80 : begin
-                for i := SnakePos.Laenge downto 2 do begin
-                    SnakePos.YPos[i] := SnakePos.YPos[i - 1];
-                    SnakePos.XPos[i] := SnakePos.XPos[i - 1]
-                end;
-                SnakePos.BlickRichtung := SUED;
-                SnakePos.YPos[1] := SnakePos.YPos[1] + 1
+                if SnakePos.BlickRichtung <> NORD then
+                begin
+                    for i := SnakePos.Laenge downto 2 do begin
+                        SnakePos.YPos[i] := SnakePos.YPos[i - 1];
+                        SnakePos.XPos[i] := SnakePos.XPos[i - 1]
+                    end;
+                    SnakePos.BlickRichtung := SUED;
+                    SnakePos.YPos[1] := SnakePos.YPos[1] + 1
+                end
             end
         end;
         SetHindernis(Koordinaten, SnakePos, SnakeNahrung);
@@ -215,146 +234,156 @@ procedure ShowSnake(var Koordinaten : TKoordinaten;
 
 procedure SpielEinrichten;
     begin
-        {Den Rahmen als Hindernis eintragen}
-        for i := 1 to 50 do begin
-            fKoordinaten[i, 1] := true;
-        end;
-        for i := 1 to 25 do begin
-            fKoordinaten[1, i] := true;
-        end;
-        for i := 1 to 50 do begin
-            fKoordinaten[i, 25] := true;
-        end;
-        for i := 1 to 25 do begin
-            fKoordinaten[50, i] := true;
-        end;
-        {Level bestimmen}
+        { Den Rahmen als Hindernis eintragen }
+        for i := 1 to 40 do
+           kKoordinaten[i, 2] := true;
+
+        for i := 3 to 49 do
+            kKoordinaten[1, i] := true;
+
+        for i := 3 to 49 do
+           kKoordinaten[40, i] := true;
+
+        for i := 2 to 39 do
+           kKoordinaten[i, 49] := true;
+
+        { Level bestimmen }
         repeat {(s = 0) or (s = 1) or (s = 2) or (s = 3) or (s = 4) or (s = 5) or (s = 6) or (s = 7) or (s = 8) or (s = 9)}
             GoToXY(55, 3);
             Write('Level (0-9)');
             s := ReadKey;
         until (s = '0') or (s = '1') or (s = '2') or (s = '3') or (s = '4')
             or (s = '5') or (s = '6') or (s = '7') or (s = '8') or (s = '9');
-        Val(s, isLevelAnzeige, i);
+        Val(s, shLevelAnzeige, i);
         GoToXY(55, 3);
-        Write('Level: ', isLevelAnzeige, '    ');
+        Write('Level: ', shLevelAnzeige, '    ');
         GoToXY(55, 4);
         Write('LÑnge: ', posSnake.Laenge);
-        {Aus isLevel die Spielgeschwindigkeit errechnen.}
-        case isLevelAnzeige of
-            0 : isLevel := 13;
-            1 : isLevel := 12;
-            2 : isLevel := 11;
-            3 : isLevel := 10;
-            4 : isLevel := 9;
-            6 : isLevel := 8;
-            7 : isLevel := 7;
-            8 : isLevel := 6;
-            9 : isLevel := 5
+        { Aus shLevel die Spielgeschwindigkeit errechnen. }
+        case shLevelAnzeige of
+            0 : shLevel := 13;
+            1 : shLevel := 12;
+            2 : shLevel := 11;
+            3 : shLevel := 10;
+            4 : shLevel := 9;
+            6 : shLevel := 8;
+            7 : shLevel := 7;
+            8 : shLevel := 6;
+            9 : shLevel := 5
         end
     end;
 
 procedure SpielFeldDefault;
     begin
         ClrScr;
+        GoToXY(1,2);
         Write('…');
-        GotoXY(1, 25);
+        GoToXY(1, 49);
         Write('»');
-        GoToXY(50, 1);
-        Write('À');
-        GoToXY(50, 25);
-        Write(' ');
-        GoToXY(79, 1);
+        GoToXY(40, 2);
         Write('ª');
-        GoToXY(79, 25);
+        GoToXY(40, 49);
         Write('º');
         GoToXY(1, 2);
-        for i := 2 to 24 do begin
+        for i := 3 to 48 do
+        begin
+            GoToXY(1,i);
             Write('∫');
-            GoToXY(50, i);
+            GoToXY(40, i);
             Write('∫');
-            GotoXY(79, i);
-            WriteLn('∫')
-        end; {i := 2 to 24 do begin}
-        GoToXY(2, 1);
-        for i := 2 to 49 do
+        end; {i := 2 to 49 do begin}
+        GoToXY(2, 2);
+        for i := 2 to 39 do
             Write('Õ');
-        GoToXY(51, 1);
-        for i := 51 to 78 do
-            Write('Õ');
-        GoToXY(2, 25);
-        for i := 2 to 49 do
-            Write('Õ');
-        GoToXY(51, 25);
-        for i := 51 to 78 do
+        GoToXY(2, 49);
+        for i := 2 to 39 do
             Write('Õ')
-    end; {SpielFeldDefault}
+    end; { SpielFeldDefault }
 
 begin {of Hauptprogramm}
 
+    { Bildschirmmodus setzen }
+    iOrigMode := LastMode;
+    TextMode(256); { 256 = Font8x8 }
+
+    { Programm Initialisieren }
     for i := 1 to 255 do begin
         posSnake.XPos[i] := 1;
         posSnake.XPos[i] := 1;
     end;
     Randomize;
     ClrScr;
-    Writeln ('SnakeS 1.0');
-    Writeln ('        Jan-Philipp Kappmeier 1999');
-    {Zeitmesser einrichten}
+    Writeln ('SnakeS 2.0');
+    Writeln ('        Jan-Philipp Kappmeier 2000');
+
+    { Zeitmesser einrichten }
     GoToXY(1, 5);
     WriteLn('Programm einrichten...');
     WriteLn('Dies dauert ca. 10 sec.');
-    ilDelayTime := GetDelay;
-    WriteLn('Delay: ', ilDelayTime );
-    {Hauptschleife zum wiederhohlten starten.}
+    lDelayTime := GetDelay;
+
+    { Hauptschleife zum wiederhohlten starten. }
     repeat  {until sNochMal = 'n'}
-        { Tastaturspeicher leeren }
-        while Keypressed do
-            ch := ReadKey;
+        { Einrichten }
         fFehlschlag := false;
-        sNochmal := 'n';
-        { Einrichten der OberflÑche }
-        SpielFeldDefault;
-        { Spiel starten }
+        for i := 1 to 50 do
+            for j := 2 TO 50 do begin
+                kKoordinaten[i, j] := false;
+                Write('.')
+            end;
         posSnake.Laenge := 3;
         posSnake.BlickRichtung := WEST;
         for i := 1 to 3 do begin
-            posSnake.XPos[i] := i + 46;
-            posSnake.YPos[i] := 24
-        end; {i := 1 to 3 do begin}
-        fKoordinaten[50, 24] := true;
-        fKoordinaten[49, 24] := true;
-        SpielEinrichten;
-        SetNahrung(fKoordinaten, posSnake, nahSnake);
+            posSnake.XPos[i] := i + 35;
+            posSnake.YPos[i] := 48
+        end; {i := 1 to 3 do beign}
+        kKoordinaten[39, 48] := true;
+        kKoordinaten[38, 48] := true;
+        kKoordinaten[37, 48] := true;
+        SpielEinrichten; { Die RÑnder als hindernisseeintragen }
+        SetNahrung(kKoordinaten, posSnake, nahSnake);
+
+        SpielFeldDefault;        { Einrichten der OberflÑche }
+        while Keypressed do      { Tastaturspeicher leeren }
+            ch := ReadKey;
+        ReadLn;
+
+        { Spiel starten }
         ch := ReadKey;
-        {Spielschleife}
-        isSnakeLaenge := 0;
+        shSnakeLaenge := 0;
         repeat {until fFehlschlag}
-            isOldLen := posSnake.Laenge;
-            ShowSnake(fKoordinaten, posSnake, nahSnake, fFehlschlag);
+            shOldLen := posSnake.Laenge;
+            ShowSnake(kKoordinaten, posSnake, nahSnake, fFehlschlag);
+
             {Automatisches Erhîhen des Levels bei einigen gefundenen
              Fre·teilchen, Geschwindigkeit quadratisch abfallend.}
             {Erhîhen des ZÑhlers der SchlangenlÑnge seit dem letzen
              Levelerhîhen}
-            if posSnake.Laenge > isOldLen then isSnakeLaenge := isSnakeLaenge + 1;
-            if isSnakeLaenge = (isLevelAnzeige + 1) * 3 then begin
-                isSnakeLaenge := 0;
-                isLevel := isLevel - 1;
-                if isLevel = 0 then isLevel := 1;
-                isLevelAnzeige := isLevelAnzeige + 1;
-                if isLevelAnzeige = 10 then isLevelAnzeige := 9;
-                GoToXY(55, 3);
-                Write('Level: ', isLevelAnzeige, '    ');
+            if posSnake.Laenge > shOldLen then shSnakeLaenge := shSnakeLaenge + 1;
+            if shSnakeLaenge = (shLevelAnzeige + 1) * 3 then begin
+                shSnakeLaenge := 0;
+                shLevel := shLevel - 1;
+                if shLevel = 0 then shLevel := 1;
+                shLevelAnzeige := shLevelAnzeige + 1;
+                if shLevelAnzeige = 10 then shLevelAnzeige := 9;
+                GoToXY(1, 50);
+                Write('Level: ', shLevelAnzeige, '    ');
             end;
+
+
             until fFehlschlag;
-        repeat {until (sNochMal = 'j') or (sNochMal = 'n')}
+
+
+        { Abfrage zum wiederhohlten Spielen }
+        repeat { until (UpCase(chNochMal) = 'J') or (UpCase(chNochMal) = 'N') }
             ClrScr;
             GoToXY(1, 25);
             Write('bock noch mal zu zocken?(j/n) ');
-            sNochMal := ReadKey;
-        until (sNochMal = 'j') or (sNochMal = 'n')
-    until sNochMal = 'n';
-    WriteLn
+            chNochMal := ReadKey;
+        until (UpCase(chNochMal) = 'J') or (UpCase(chNochMal) = 'N')
+    until UpCase(chNochMal) = 'N';
+
+    TextMode(iOrigMode);  { ZurÅcksetzen des Bildschirmmodes}
 end. { of main }
 
-{ (c) Jan-Philipp Kappmeier, 1999 }
+{ (c) Jan-Philipp Kappmeier, 1999-2000 }
