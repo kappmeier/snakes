@@ -50,3 +50,4 @@ A bundle as `.jsdos` archive is needed to execute the game in `js-dos`, as descr
 © Jan-Philipp Kappmeier 1999
 
 [release]: https://github.com/kappmeier/snakes/releases
+
