@@ -6,6 +6,6 @@ Running on
   __/ /____/      \__,_/\____/____(_)___/\____/_/ /_/ /_/
  /___/
 
-SnakeS 1.0
+SnakeS 2.0
 
-Start with JSSNAKE1
+Start with JSSNAKE2
