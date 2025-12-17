@@ -4,6 +4,15 @@ A DOS Snake clone.
 
 🐍 [Try the game online ](https://github.kappmeier.de/snakes/) 🐍
 
+## Prerequisites
+
+1. Turbo Pascal 6.0  
+   💾 from [Archive.org](https://archive.org/details/borland-turbo-pascal-6.0-1990)
+2. MS-DOS 6.22  
+   💾 from [Archive.org](https://archive.org/details/ms-dos-6.22-with-enchanced-tools-floppy-disks_20231027) (other languages also available)
+3. (optional) Virtual Box (or any other VM system)  
+   💾 from the [Oracle](https://www.virtualbox.org/wiki/Downloads) (e.g. for Windows, Linux, macOS)
+
 ## Running
 
 The binaries require MS-DOS 6 (or later). It is typically difficult to obtain current machines able
