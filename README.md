@@ -2,6 +2,8 @@
 
 A DOS Snake clone.
 
+🐍 [Try the game online ](https://github.kappmeier.de/snakes/) 🐍
+
 ## Running
 
 The binaries require MS-DOS 6 (or later). It is typically difficult to obtain current machines able
